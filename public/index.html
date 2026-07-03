@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header>
+        <h1>Expense Tracker</h1>
+      </header>
+
+      <main>
+        <section class="funds-panel">
+          <div>
+            <p>Total income</p>
+            <h2 id="income-total">₹0.00</h2>
+          </div>
+          <div>
+            <p>Total expenses</p>
+            <h2 id="expense-total">₹0.00</h2>
+          </div>
+          <div>
+            <p>Net balance</p>
+            <h2 id="net-total">₹0.00</h2>
+          </div>
+          <div>
+            <p>Transactions</p>
+            <h2 id="transaction-count">0</h2>
+          </div>
+        </section>
+
+        <section class="summary-panel">
+          <h2>Category summary</h2>
+          <ul id="category-summary"></ul>
+        </section>
+
+        <section class="chart-panel">
+          <h2>Income vs Expense chart</h2>
+          <div class="chart-container" id="transaction-chart"></div>
+        </section>
+
+        <section class="form-panel">
+          <form id="expense-form">
+            <div class="field-row">
+              <label for="description">Description</label>
+              <input id="description" name="description" required maxlength="100" />
+            </div>
+            <div class="field-row">
+              <label for="transaction-type">Type</label>
+              <select id="transaction-type" name="type" required>
+                <option value="">Select type</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <label for="amount">Amount</label>
+              <input id="amount" name="amount" type="number" required step="0.01" />
+            </div>
+            <div class="field-row">
+              <label for="category">Category</label>
+              <select id="category" name="category" required>
+                <option value="">Select category</option>
+                <option>Food</option>
+                <option>Transport</option>
+                <option>Utilities</option>
+                <option>Shopping</option>
+                <option>Healthcare</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <label for="date">Date</label>
+              <input id="date" name="date" type="date" required />
+            </div>
+            <div class="actions">
+              <button type="submit" id="save-button">Save Transaction</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="list-panel">
+          <h2>Expense history</h2>
+          <div id="message"></div>
+          <ul id="expense-list"></ul>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
