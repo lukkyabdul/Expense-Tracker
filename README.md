@@ -160,7 +160,7 @@ Expense Tracker
 ## **Base URL** 
 
 ```
-http://localhost:4000/api
+[http://localhost:4000/api](https://expense-tracker-1oth.onrender.com/)
 ```
 
 ## **9.1 Get All Transactions** 
