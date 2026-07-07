@@ -96,11 +96,26 @@ function findUserByEmail(email) {
 function createUser(user) {
   const data = readUsersDb();
   // In a real app, you MUST hash the password here.
-  const newUser = { id: data.nextId++, email: user.email, password: user.password };
+  const newUser = { 
+    id: data.nextId++, 
+    email: user.email, 
+    name: user.name || user.email.split('@')[0], 
+    password: user.password 
+  };
   data.users.push(newUser);
   writeUsersDb(data);
   // Return user without password
-  return { id: newUser.id, email: newUser.email };
+  return { id: newUser.id, email: newUser.email, name: newUser.name };
+}
+
+function updateUserProfile(email, name, newPassword) {
+  const data = readUsersDb();
+  const user = data.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  if (!user) return null;
+  if (name) user.name = name.trim();
+  if (newPassword) user.password = newPassword;
+  writeUsersDb(data);
+  return { id: user.id, email: user.email, name: user.name };
 }
 
 module.exports = {
@@ -112,4 +127,5 @@ module.exports = {
   deleteExpense,
   findUserByEmail,
   createUser,
+  updateUserProfile,
 };

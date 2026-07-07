@@ -1,217 +1,381 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Expense Tracker Dashboard</title>
-
-<link rel="stylesheet" href="styles.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker - Premium Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+<body class="theme-crimson">
 
-<body>
+  <!-- Status banner for user notifications -->
+  <div id="message-banner"></div>
 
-<!-- Sidebar -->
-<div class="sidebar">
-
-    <div class="logo">
-        <h2>💰 Expense Tracker</h2>
-    </div>
-
-    <ul>
-       <li id="dashboardBtn" class="active">📊 Dashboard</li>
-       <li id="incomeBtn">💵 Income</li>
-       <li id="expenseBtn">💸 Expenses</li>
-       <li id="transactionBtn">📑 Transactions</li>
-       <li id="reportBtn">📈 Reports</li> 
-    </ul> 
-    <!-- Settings Section -->
-    <div class="sidebar-section">
-        <ul class="settings-menu">
-            <li id="settings-toggle">⚙️ Settings</li>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div>
+        <div class="logo">
+          <span>💎</span>
+          <h2>Antigravity</h2>
+        </div>
+        <ul>
+          <li data-tab="dashboard" class="active"><span>📊</span> Dashboard</li>
+          <li data-tab="income"><span>💵</span> Income</li>
+          <li data-tab="expense"><span>💸</span> Expenses</li>
+          <li data-tab="settings"><span>⚙️</span> Settings</li>
         </ul>
-        <div id="settings-panel" class="hidden">
-            <!-- The Logout button will be managed here -->
-            <button id="logout-button" class="logout-btn">Logout</button>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="profile-preview">
+          <img id="sidebar-avatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile">
+          <div class="details">
+            <h4 id="sidebar-name">User Name</h4>
+            <span id="sidebar-email">user@email.com</span>
+          </div>
         </div>
-    </div>
+        <button id="logout-button" class="logout-sidebar-btn">
+          <span>🚪</span> <span class="logout-text">Logout</span>
+        </button>
+      </div>
+    </aside>
 
-</div>
-
-<!-- Main Content -->
-<div class="main">
-
-    <!-- Header -->
-    <header>
-
+    <!-- Main Content Area -->
+    <main class="main">
+      <!-- Top header bar -->
+      <header>
         <div>
-            <h1>Dashboard Overview</h1>
-            <p>Manage your finances smarter</p>
+          <h1 id="page-title">Dashboard Overview</h1>
+          <p id="page-subtitle">Welcome back! Manage your finances smarter.</p>
         </div>
-
-        <div class="profile">
-            <img src="https://ui-avatars.com/api/?name=User" alt="User">
-            <span>Welcome Back</span>
+        <div class="header-right">
+          <div class="date-indicator" id="current-date-box">July 7, 2026</div>
+          <div class="profile-dropdown" id="profile-dropdown-btn">
+            <img id="header-avatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar">
+            <span id="header-name">Welcome Back</span>
+          </div>
         </div>
+      </header>
 
-    </header>
-
-    <!-- Dashboard Cards -->
-    <section class="cards">
-
-        <div class="card income-card">
+      <!-- ==========================================
+           TAB 1: DASHBOARD TAB
+           ========================================== -->
+      <div id="dashboard-tab" class="tab-content active">
+        <!-- Cards -->
+        <section class="cards">
+          <div class="card income-card">
+            <div class="card-icon">💵</div>
             <h3>Total Income</h3>
-            <h2 id="income-total">₹0</h2>
-        </div>
-
-        <div class="card expense-card">
+            <h2 id="income-total">₹0.00</h2>
+          </div>
+          <div class="card expense-card">
+            <div class="card-icon">💸</div>
             <h3>Total Expense</h3>
-            <h2 id="expense-total">₹0</h2>
-        </div>
-
-        <div class="card balance-card">
+            <h2 id="expense-total">₹0.00</h2>
+          </div>
+          <div class="card balance-card">
+            <div class="card-icon">⚖️</div>
             <h3>Net Balance</h3>
-            <h2 id="net-total">₹0</h2>
-        </div>
-
-        <div class="card transaction-card">
+            <h2 id="net-total">₹0.00</h2>
+          </div>
+          <div class="card transaction-card">
+            <div class="card-icon">📈</div>
             <h3>Transactions</h3>
             <h2 id="transaction-count">0</h2>
-        </div>
+          </div>
+        </section>
 
-    </section>
-
-    <!-- Charts -->
-    <section class="charts">
-
-        <div class="chart-box">
-
-            <h3>Income vs Expense</h3>
-
+        <!-- Charts Grid -->
+        <section class="charts">
+          <div class="chart-box">
+            <h3><span>📊</span> Income vs Expense</h3>
             <canvas id="incomeChart"></canvas>
-
-        </div>
-
-        <div class="chart-box">
-
-            <h3>Expense Categories</h3>
-
+          </div>
+          <div class="chart-box">
+            <h3><span>🍩</span> Expense Categories</h3>
             <canvas id="categoryChart"></canvas>
+          </div>
+        </section>
 
-        </div>
+        <!-- Recent Transactions -->
+        <section class="section-card">
+          <div class="section-header">
+            <h3>⏱️ Recent Transactions</h3>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody id="recent-transactions-tbody">
+                <tr>
+                  <td colspan="5" class="no-data">Loading recent transactions...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
 
-    </section>
-
-    <!-- Form + Category Summary -->
-    <section class="bottom-grid">
-
-        <!-- Add Transaction -->
-        <div class="form-box">
-
-            <h3>Add Transaction</h3>
-
-            <form id="expense-form">
-
-                <input
-                    id="description"
-                    placeholder="Enter Description"
-                    required
-                >
-
-                <select
-                    id="transaction-type"
-                    required
-                >
-                    <option value="">Select Type</option>
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
+      <!-- ==========================================
+           TAB 2: INCOME MANAGEMENT TAB
+           ========================================== -->
+      <div id="income-tab" class="tab-content">
+        <div class="content-grid">
+          <!-- Form to add/edit income -->
+          <div class="form-box">
+            <h3 id="income-form-title">➕ Add Income</h3>
+            <form id="income-form">
+              <input type="hidden" id="income-editing-id">
+              <div class="form-group">
+                <label for="income-description">Description</label>
+                <input type="text" id="income-description" placeholder="e.g. June Monthly Salary" required>
+              </div>
+              <div class="form-group">
+                <label for="income-amount">Amount (₹)</label>
+                <input type="number" id="income-amount" step="0.01" min="0.01" placeholder="e.g. 50000" required>
+              </div>
+              <div class="form-group">
+                <label for="income-category">Category</label>
+                <select id="income-category" required>
+                  <option value="" disabled selected>Select Category</option>
+                  <option value="Salary">Salary</option>
+                  <option value="Freelance">Freelance</option>
+                  <option value="Investments">Investments</option>
+                  <option value="Gifts">Gifts</option>
+                  <option value="Other">Other</option>
                 </select>
-
-                <input
-                    id="amount"
-                    type="number"
-                    step="0.01"
-                    placeholder="Enter Amount"
-                    required
-                >
-
-                <select
-                    id="category"
-                    required
-                >
-                    <option value="">Select Category</option>
-                    <option>Food</option>
-                    <option>Travel</option>
-                    <option>Shopping</option>
-                    <option>Bills</option>
-                    <option>Healthcare</option>
-                    <option>Utilities</option>
-                    <option>Other</option>
-                </select>
-
-                <input
-                    id="date"
-                    type="date"
-                    required
-                >
-
-                <button
-                    type="submit"
-                    id="save-button"
-                >
-                    Save Transaction
-                </button>
-
+              </div>
+              <div class="form-group">
+                <label for="income-date">Date</label>
+                <input type="date" id="income-date" required>
+              </div>
+              <button type="submit" id="income-submit-btn" class="btn-primary">Save Income</button>
+              <button type="button" id="income-cancel-btn" class="btn-secondary" style="display:none;">Cancel Edit</button>
             </form>
+          </div>
 
+          <!-- List of Incomes -->
+          <div class="section-card">
+            <div class="section-header">
+              <h3>📜 Income Registry</h3>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filter-bar">
+              <div class="filter-group">
+                <label for="income-search-filter">Search</label>
+                <input type="text" id="income-search-filter" placeholder="Search description...">
+              </div>
+              <div class="filter-group">
+                <label for="income-category-filter">Category</label>
+                <select id="income-category-filter">
+                  <option value="">All Categories</option>
+                  <option value="Salary">Salary</option>
+                  <option value="Freelance">Freelance</option>
+                  <option value="Investments">Investments</option>
+                  <option value="Gifts">Gifts</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="income-list-tbody">
+                  <tr>
+                    <td colspan="5" class="no-data">No income records matching filters.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Category Summary -->
-        <div class="category-box">
+      <!-- ==========================================
+           TAB 3: EXPENSE MANAGEMENT TAB
+           ========================================== -->
+      <div id="expense-tab" class="tab-content">
+        <div class="content-grid">
+          <!-- Form to add/edit expense -->
+          <div class="form-box">
+            <h3 id="expense-form-title">➕ Add Expense</h3>
+            <form id="expense-form">
+              <input type="hidden" id="expense-editing-id">
+              <div class="form-group">
+                <label for="expense-description">Description</label>
+                <input type="text" id="expense-description" placeholder="e.g. Grocery Shopping" required>
+              </div>
+              <div class="form-group">
+                <label for="expense-amount">Amount (₹)</label>
+                <input type="number" id="expense-amount" step="0.01" min="0.01" placeholder="e.g. 1500" required>
+              </div>
+              <div class="form-group">
+                <label for="expense-category">Category</label>
+                <select id="expense-category" required>
+                  <option value="" disabled selected>Select Category</option>
+                  <option value="Food">Food</option>
+                  <option value="Travel">Travel</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Bills">Bills</option>
+                  <option value="Healthcare">Healthcare</option>
+                  <option value="Utilities">Utilities</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="expense-date">Date</label>
+                <input type="date" id="expense-date" required>
+              </div>
+              <button type="submit" id="expense-submit-btn" class="btn-primary">Save Expense</button>
+              <button type="button" id="expense-cancel-btn" class="btn-secondary" style="display:none;">Cancel Edit</button>
+            </form>
+          </div>
 
-            <h3>Category Summary</h3>
+          <!-- List of Expenses -->
+          <div class="section-card">
+            <div class="section-header">
+              <h3>📜 Expense Registry</h3>
+            </div>
+            
+            <!-- Filters -->
+            <div class="filter-bar">
+              <div class="filter-group">
+                <label for="expense-search-filter">Search</label>
+                <input type="text" id="expense-search-filter" placeholder="Search description...">
+              </div>
+              <div class="filter-group">
+                <label for="expense-category-filter">Category</label>
+                <select id="expense-category-filter">
+                  <option value="">All Categories</option>
+                  <option value="Food">Food</option>
+                  <option value="Travel">Travel</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Bills">Bills</option>
+                  <option value="Healthcare">Healthcare</option>
+                  <option value="Utilities">Utilities</option>
+                  <option value="Entertainment">Entertainment</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
 
-            <ul id="category-summary">
-                <li>No Categories Yet</li>
-            </ul>
-
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="expense-list-tbody">
+                  <tr>
+                    <td colspan="5" class="no-data">No expense records matching filters.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
+      </div>
 
-    </section>
-
-    <!-- Transaction History -->
-    <section class="history">
-
-        <h3>Recent Transactions</h3>
-
-        <div id="message"></div>
-
-        <ul id="expense-list">
-
-            <li class="expense-item">
-
-                <div class="expense-item-header">
-
-                    <h3>Sample Transaction</h3>
-
-                    <strong>₹0</strong>
-
+      <!-- ==========================================
+           TAB 4: SETTINGS & PREFERENCES TAB
+           ========================================== -->
+      <div id="settings-tab" class="tab-content">
+        <div class="settings-container">
+          <!-- Profile details block -->
+          <div>
+            <div class="profile-card">
+              <img id="settings-avatar" class="avatar-large" src="https://ui-avatars.com/api/?name=User&background=random" alt="Avatar">
+              <h3 id="settings-profile-name">User Name</h3>
+              <p id="settings-profile-email">user@email.com</p>
+            </div>
+            
+            <div class="form-box">
+              <h3>⚙️ Update Profile Details</h3>
+              <form id="profile-form">
+                <div class="form-group">
+                  <label for="profile-name">Full Name</label>
+                  <input type="text" id="profile-name" placeholder="Enter Full Name" required>
                 </div>
+                <div class="form-group">
+                  <label for="profile-current-password">Current Password (needed to confirm changes)</label>
+                  <input type="password" id="profile-current-password" placeholder="••••••" required>
+                </div>
+                <div class="form-group">
+                  <label for="profile-new-password">New Password (leave empty to keep current)</label>
+                  <input type="password" id="profile-new-password" placeholder="•••••• (min. 6 characters)">
+                </div>
+                <button type="submit" class="btn-primary">Update Profile</button>
+              </form>
+            </div>
+          </div>
 
-            </li>
+          <!-- Theme settings block -->
+          <div class="theme-selector-box">
+            <h3>🎨 Visual Theme Switcher</h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px;">
+              Select a visual layout preset to customize your visual dashboard experience.
+            </p>
+            <div class="theme-grid">
+              <div class="theme-option active" data-theme="theme-crimson">
+                <div class="theme-name">Crimson Velvet</div>
+                <div class="color-dots">
+                  <div class="dot crimson-dot-1"></div>
+                  <div class="dot crimson-dot-2"></div>
+                </div>
+              </div>
+              <div class="theme-option" data-theme="theme-emerald">
+                <div class="theme-name">Emerald Glass</div>
+                <div class="color-dots">
+                  <div class="dot emerald-dot-1"></div>
+                  <div class="dot emerald-dot-2"></div>
+                </div>
+              </div>
+              <div class="theme-option" data-theme="theme-ocean">
+                <div class="theme-name">Ocean Slate</div>
+                <div class="color-dots">
+                  <div class="dot ocean-dot-1"></div>
+                  <div class="dot ocean-dot-2"></div>
+                </div>
+              </div>
+              <div class="theme-option" data-theme="theme-cyberpunk">
+                <div class="theme-name">Cyberpunk Neon</div>
+                <div class="color-dots">
+                  <div class="dot cyber-dot-1"></div>
+                  <div class="dot cyber-dot-2"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 
-        </ul>
-
-    </section>
-
-</div>
-
-<script src="app.js"></script>
-
+  <script src="app.js"></script>
 </body>
 </html>

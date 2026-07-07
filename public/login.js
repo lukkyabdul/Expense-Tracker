@@ -23,7 +23,9 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       throw new Error(data.error || 'Login failed.');
     }
 
-    localStorage.setItem('isLoggedIn', 'true'); // We will replace this with JWTs later
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('userEmail', data.user.email);
+    localStorage.setItem('userName', data.user.name);
     window.location.href = 'index.html';
   } catch (error) {
     messageEl.textContent = error.message;

@@ -4,9 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Expense Tracker</title>
+    <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="login.css" />
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.className = localStorage.getItem('selectedTheme') || 'theme-crimson';
+      });
+    </script>
   </head>
-  <body>
+  <body class="theme-crimson">
     <div class="container">
       <div class="left-panel">
         <div class="logo">✦</div>

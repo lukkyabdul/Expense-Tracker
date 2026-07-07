@@ -10,6 +10,7 @@ const {
   deleteExpense,
   findUserByEmail,
   createUser: createDbUser,
+  updateUserProfile,
 } = require('./db');
 
 const app = express();
@@ -20,6 +21,10 @@ initDb();
 app.use(cors());
 app.use(express.json());
 
+function getUserEmail(req) {
+  return req.headers['x-user-email'] || '';
+}
+
 function normalizeExpense(row) {
   return {
     id: row.id,
@@ -28,6 +33,7 @@ function normalizeExpense(row) {
     amount: Number(row.amount),
     category: row.category,
     date: row.date,
+    userEmail: row.userEmail || '',
   };
 }
 
@@ -89,7 +95,7 @@ app.post('/api/auth/register', (req, res) => {
   // Libraries like 'bcrypt' are essential for this.
   const newUser = createDbUser({ email, password });
 
-  res.status(201).json({ message: 'User registered successfully.', user: { id: newUser.id, email: newUser.email } });
+  res.status(201).json({ message: 'User registered successfully.', user: { id: newUser.id, email: newUser.email, name: newUser.name } });
 });
 
 app.post('/api/auth/login', (req, res) => {
@@ -107,12 +113,64 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(401).json({ error: 'Invalid email or password.' });
   }
 
-  res.json({ message: 'Login successful.' });
+  res.json({ message: 'Login successful.', user: { email: user.email, name: user.name || user.email.split('@')[0] } });
 });
+
+// --- PROFILE ROUTES ---
+
+app.get('/api/profile', (req, res) => {
+  const userEmail = getUserEmail(req);
+  if (!userEmail) {
+    return res.status(401).json({ error: 'Unauthorized: User email header missing.' });
+  }
+
+  const user = findUserByEmail(userEmail);
+  if (!user) {
+    return res.status(404).json({ error: 'User profile not found.' });
+  }
+
+  res.json({
+    email: user.email,
+    name: user.name || user.email.split('@')[0],
+  });
+});
+
+app.put('/api/profile', (req, res) => {
+  const userEmail = getUserEmail(req);
+  if (!userEmail) {
+    return res.status(401).json({ error: 'Unauthorized: User email header missing.' });
+  }
+
+  const { name, password, newPassword } = req.body;
+  const user = findUserByEmail(userEmail);
+  if (!user) {
+    return res.status(404).json({ error: 'User profile not found.' });
+  }
+
+  if (password || newPassword) {
+    if (user.password !== password) {
+      return res.status(401).json({ error: 'Invalid current password.' });
+    }
+    if (newPassword && newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters long.' });
+    }
+  }
+
+  const updated = updateUserProfile(userEmail, name, newPassword);
+  res.json({ message: 'Profile updated successfully.', user: updated });
+});
+
+// --- EXPENSES ROUTES ---
 
 app.get('/api/expenses', (req, res) => {
   const { category, type, from, to } = req.query;
+  const userEmail = getUserEmail(req);
   let rows = getExpenses();
+
+  // Multi-user filter: only return user's expenses (or legacy expenses with no userEmail)
+  if (userEmail) {
+    rows = rows.filter((item) => !item.userEmail || item.userEmail.toLowerCase() === userEmail.toLowerCase());
+  }
 
   if (category) {
     rows = rows.filter((item) => item.category.toLowerCase() === String(category).toLowerCase());
@@ -135,14 +193,21 @@ app.get('/api/expenses', (req, res) => {
 });
 
 app.get('/api/expenses/:id', (req, res) => {
+  const userEmail = getUserEmail(req);
   const expense = getExpense(req.params.id);
   if (!expense) {
     return res.status(404).json({ error: 'Expense not found' });
   }
+
+  if (userEmail && expense.userEmail && expense.userEmail.toLowerCase() !== userEmail.toLowerCase()) {
+    return res.status(403).json({ error: 'Forbidden: You do not own this resource.' });
+  }
+
   res.json(normalizeExpense(expense));
 });
 
 app.post('/api/expenses', (req, res) => {
+  const userEmail = getUserEmail(req);
   const payload = {
     description: req.body.description,
     type: req.body.type,
@@ -162,12 +227,23 @@ app.post('/api/expenses', (req, res) => {
     amount: Number(payload.amount),
     category: payload.category.toString().trim(),
     date: new Date(payload.date).toISOString().slice(0, 10),
+    userEmail: userEmail, // Store association
   });
 
   res.status(201).json(normalizeExpense(expense));
 });
 
 app.put('/api/expenses/:id', (req, res) => {
+  const userEmail = getUserEmail(req);
+  const expense = getExpense(req.params.id);
+  if (!expense) {
+    return res.status(404).json({ error: 'Expense not found' });
+  }
+
+  if (userEmail && expense.userEmail && expense.userEmail.toLowerCase() !== userEmail.toLowerCase()) {
+    return res.status(403).json({ error: 'Forbidden: You do not own this resource.' });
+  }
+
   const payload = {
     description: req.body.description,
     type: req.body.type,
@@ -187,16 +263,23 @@ app.put('/api/expenses/:id', (req, res) => {
     amount: Number(payload.amount),
     category: payload.category.toString().trim(),
     date: new Date(payload.date).toISOString().slice(0, 10),
+    userEmail: expense.userEmail || userEmail, // Preserve or set owner
   });
-
-  if (!updated) {
-    return res.status(404).json({ error: 'Expense not found' });
-  }
 
   res.json(normalizeExpense(updated));
 });
 
 app.delete('/api/expenses/:id', (req, res) => {
+  const userEmail = getUserEmail(req);
+  const expense = getExpense(req.params.id);
+  if (!expense) {
+    return res.status(404).json({ error: 'Expense not found' });
+  }
+
+  if (userEmail && expense.userEmail && expense.userEmail.toLowerCase() !== userEmail.toLowerCase()) {
+    return res.status(403).json({ error: 'Forbidden: You do not own this resource.' });
+  }
+
   const success = deleteExpense(req.params.id);
   if (!success) {
     return res.status(404).json({ error: 'Expense not found' });
@@ -205,7 +288,13 @@ app.delete('/api/expenses/:id', (req, res) => {
 });
 
 app.get('/api/summary', (req, res) => {
-  const transactions = getExpenses();
+  const userEmail = getUserEmail(req);
+  let transactions = getExpenses();
+
+  if (userEmail) {
+    transactions = transactions.filter((item) => !item.userEmail || item.userEmail.toLowerCase() === userEmail.toLowerCase());
+  }
+
   const summary = transactions.reduce(
     (acc, expense) => {
       const amount = Number(expense.amount) || 0;
