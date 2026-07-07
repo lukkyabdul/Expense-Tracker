@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Tracker Dashboard</title>
+
+<link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="styles.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h2>💰 Expense Tracker</h2>
+
+        <ul>
+            <li class="active">📊 Dashboard</li>
+            <li>💵 Income</li>
+            <li>💸 Expenses</li>
+            <li>📑 Reports</li>
+        </ul>
+
+        <div class="sidebar-section">
+            <ul class="settings-menu">
+                <li id="settings-toggle">⚙️ Settings</li>
+            </ul>
+            <div id="settings-panel" class="hidden">
+                <button id="logout-button" class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <h1>Dashboard Overview</h1>
+
+        <!-- Cards -->
+        <div class="cards">
+
+            <div class="card balance">
+                <h3>Total Balance</h3>
+                <h2>₹45,000</h2>
+            </div>
+
+            <div class="card income">
+                <h3>Total Income</h3>
+                <h2>₹80,000</h2>
+            </div>
+
+            <div class="card expense">
+                <h3>Total Expense</h3>
+                <h2>₹35,000</h2>
+            </div>
+
+            <div class="card savings">
+                <h3>Savings</h3>
+                <h2>₹45,000</h2>
+            </div>
+
+        </div>
+
+        <!-- Charts -->
+        <div class="charts">
+
+            <div class="chart-box">
+                <h3>Income vs Expense</h3>
+                <canvas id="barChart"></canvas>
+            </div>
+
+            <div class="chart-box">
+                <h3>Expense Categories</h3>
+                <canvas id="pieChart"></canvas>
+            </div>
+
+        </div>
+
+        <!-- Transactions -->
+        <div class="transactions">
+
+            <h3>Recent Transactions</h3>
+
+            <table>
+
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                </tr>
+
+                <tr>
+                    <td>01-07-2026</td>
+                    <td>Food</td>
+                    <td>₹500</td>
+                </tr>
+
+                <tr>
+                    <td>02-07-2026</td>
+                    <td>Travel</td>
+                    <td>₹1200</td>
+                </tr>
+
+                <tr>
+                    <td>03-07-2026</td>
+                    <td>Shopping</td>
+                    <td>₹2500</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="dashboard.js"></script>
+
+</body>
+</html>

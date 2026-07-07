@@ -10,11 +10,13 @@ const incomeTotalElement = document.getElementById('income-total');
 const expenseTotalElement = document.getElementById('expense-total');
 const netTotalElement = document.getElementById('net-total');
 const transactionCountElement = document.getElementById('transaction-count');
-const chartContainer = document.getElementById('transaction-chart');
 const messageBox = document.getElementById('message');
 
 let editingId = null;
 let messageTimeout = null;
+let incomeChart = null;
+let categoryChart = null;
+let currentExpenses = [];
 
 function formatCurrency(value) {
   return new Intl.NumberFormat('en-IN', {
@@ -131,35 +133,112 @@ function renderFundSummary(expenses) {
   const net = totals.income - totals.expense;
 
   incomeTotalElement.textContent = formatCurrency(totals.income);
-  expenseTotalElement.textContent = formatCurrency(totals.expense);
-  netTotalElement.textContent = formatCurrency(net);
-  transactionCountElement.textContent = expenses.length;
-  renderChart({ income: totals.income, expense: totals.expense, net });
+  expenseTotalElement.textContent = formatCurrency(totals.expense); 
+  netTotalElement.textContent = formatCurrency(net); 
+  transactionCountElement.textContent = expenses.length; 
+  renderDashboardCharts(expenses);
 }
+function renderDashboardCharts(expenses) {
+  const textColor = '#333';
+  const gridColor = 'rgba(0, 0, 0, 0.1)';
 
-function renderChart(values) {
-  const maxValue = Math.max(values.income, values.expense, Math.abs(values.net), 1);
 
-  chartContainer.innerHTML = Object.entries(values)
-    .map(([key, amount]) => {
-      const width = Math.round((Math.abs(amount) / maxValue) * 100);
-      const label = key === 'net' ? 'Net' : key.charAt(0).toUpperCase() + key.slice(1);
-      return `
-        <div class="chart-row">
-          <div class="chart-label">${label}</div>
-          <div class="bar-wrapper">
-            <div class="bar ${key}" style="width: ${width}%;"></div>
-          </div>
-          <div class="chart-value">${formatCurrency(amount)}</div>
-        </div>`;
-    })
-    .join('');
+  const income = expenses
+    .filter((entry) => entry.type === 'income')
+    .reduce((sum, entry) => sum + Number(entry.amount), 0);
+
+  const expense = expenses
+    .filter((entry) => entry.type === 'expense')
+    .reduce((sum, entry) => sum + Number(entry.amount), 0);
+
+  const categoryTotals = {};
+
+  expenses.forEach((expenseItem) => {
+    if (expenseItem.type === 'expense') {
+      const category = expenseItem.category || 'Other';
+      categoryTotals[category] = (categoryTotals[category] || 0) + Number(expenseItem.amount);
+    }
+  });
+
+  const categoryLabels = Object.keys(categoryTotals);
+  const categoryValues = Object.values(categoryTotals);
+
+  const incomeCanvas = document.getElementById('incomeChart');
+  const categoryCanvas = document.getElementById('categoryChart');
+
+  if (incomeCanvas && window.Chart) {
+    const incomeCtx = incomeCanvas.getContext('2d');
+    if (incomeChart) {
+      incomeChart.destroy();
+    }
+
+    incomeChart = new window.Chart(incomeCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Income', 'Expense'],
+        datasets: [
+          {
+            data: [income, expense],
+            backgroundColor: ['#22c55e', '#ef4444'],
+            borderRadius: 10,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false, labels: { color: textColor } },
+        },
+        scales: {
+          x: {
+            ticks: { color: textColor },
+            grid: { color: gridColor },
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: textColor },
+            grid: { color: gridColor },
+          },
+        },
+      },
+    });
+  }
+
+  if (categoryCanvas && window.Chart) {
+    const categoryCtx = categoryCanvas.getContext('2d');
+    if (categoryChart) {
+      categoryChart.destroy();
+    }
+
+    categoryChart = new window.Chart(categoryCtx, {
+      type: 'doughnut',
+      data: {
+        labels: categoryLabels,
+        datasets: [
+          {
+            data: categoryValues,
+            backgroundColor: ['#800020', '#E67E22', '#3B82F6', '#22C55E', '#F59E0B', '#8B5CF6'],
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: textColor },
+          },
+        },
+      },
+    });
+  }
 }
 
 async function loadExpenses() {
   try {
     const response = await fetch('/api/expenses');
-    const expenses = await response.json();
+    const expenses = await response.json(); 
+    currentExpenses = expenses;
 
     expenseList.innerHTML = '';
     if (expenses.length === 0) {
@@ -216,6 +295,27 @@ expenseForm.addEventListener('submit', async (event) => {
 });
 
 window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('isLoggedIn') !== 'true') {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // --- Settings Panel Logic ---
+  const settingsToggle = document.getElementById('settings-toggle');
+  const settingsPanel = document.getElementById('settings-panel');
+  const logoutButton = document.getElementById('logout-button');
+
+  // Toggle settings panel visibility
+  settingsToggle.addEventListener('click', () => {
+    settingsPanel.classList.toggle('hidden');
+  });
+
+  // Handle Logout
+  logoutButton.addEventListener('click', () => {
+    localStorage.removeItem('isLoggedIn');
+    window.location.href = 'login.html';
+  });
+
   dateInput.value = new Date().toISOString().split('T')[0];
   loadExpenses();
 });

@@ -1,95 +1,217 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Expense Tracker</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <header>
-        <h1>Expense Tracker</h1>
-      </header>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-      <main>
-        <section class="funds-panel">
-          <div>
-            <p>Total income</p>
-            <h2 id="income-total">₹0.00</h2>
-          </div>
-          <div>
-            <p>Total expenses</p>
-            <h2 id="expense-total">₹0.00</h2>
-          </div>
-          <div>
-            <p>Net balance</p>
-            <h2 id="net-total">₹0.00</h2>
-          </div>
-          <div>
-            <p>Transactions</p>
-            <h2 id="transaction-count">0</h2>
-          </div>
-        </section>
+<title>Expense Tracker Dashboard</title>
 
-        <section class="summary-panel">
-          <h2>Category summary</h2>
-          <ul id="category-summary"></ul>
-        </section>
+<link rel="stylesheet" href="styles.css">
 
-        <section class="chart-panel">
-          <h2>Income vs Expense chart</h2>
-          <div class="chart-container" id="transaction-chart"></div>
-        </section>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-        <section class="form-panel">
-          <form id="expense-form">
-            <div class="field-row">
-              <label for="description">Description</label>
-              <input id="description" name="description" required maxlength="100" />
-            </div>
-            <div class="field-row">
-              <label for="transaction-type">Type</label>
-              <select id="transaction-type" name="type" required>
-                <option value="">Select type</option>
-                <option value="income">Income</option>
-                <option value="expense">Expense</option>
-              </select>
-            </div>
-            <div class="field-row">
-              <label for="amount">Amount</label>
-              <input id="amount" name="amount" type="number" required step="0.01" />
-            </div>
-            <div class="field-row">
-              <label for="category">Category</label>
-              <select id="category" name="category" required>
-                <option value="">Select category</option>
-                <option>Food</option>
-                <option>Transport</option>
-                <option>Utilities</option>
-                <option>Shopping</option>
-                <option>Healthcare</option>
-                <option>Other</option>
-              </select>
-            </div>
-            <div class="field-row">
-              <label for="date">Date</label>
-              <input id="date" name="date" type="date" required />
-            </div>
-            <div class="actions">
-              <button type="submit" id="save-button">Save Transaction</button>
-            </div>
-          </form>
-        </section>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        <section class="list-panel">
-          <h2>Expense history</h2>
-          <div id="message"></div>
-          <ul id="expense-list"></ul>
-        </section>
-      </main>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+
+    <div class="logo">
+        <h2>💰 Expense Tracker</h2>
     </div>
 
-    <script src="app.js"></script>
-  </body>
+    <ul>
+       <li id="dashboardBtn" class="active">📊 Dashboard</li>
+       <li id="incomeBtn">💵 Income</li>
+       <li id="expenseBtn">💸 Expenses</li>
+       <li id="transactionBtn">📑 Transactions</li>
+       <li id="reportBtn">📈 Reports</li> 
+    </ul> 
+    <!-- Settings Section -->
+    <div class="sidebar-section">
+        <ul class="settings-menu">
+            <li id="settings-toggle">⚙️ Settings</li>
+        </ul>
+        <div id="settings-panel" class="hidden">
+            <!-- The Logout button will be managed here -->
+            <button id="logout-button" class="logout-btn">Logout</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+    <!-- Header -->
+    <header>
+
+        <div>
+            <h1>Dashboard Overview</h1>
+            <p>Manage your finances smarter</p>
+        </div>
+
+        <div class="profile">
+            <img src="https://ui-avatars.com/api/?name=User" alt="User">
+            <span>Welcome Back</span>
+        </div>
+
+    </header>
+
+    <!-- Dashboard Cards -->
+    <section class="cards">
+
+        <div class="card income-card">
+            <h3>Total Income</h3>
+            <h2 id="income-total">₹0</h2>
+        </div>
+
+        <div class="card expense-card">
+            <h3>Total Expense</h3>
+            <h2 id="expense-total">₹0</h2>
+        </div>
+
+        <div class="card balance-card">
+            <h3>Net Balance</h3>
+            <h2 id="net-total">₹0</h2>
+        </div>
+
+        <div class="card transaction-card">
+            <h3>Transactions</h3>
+            <h2 id="transaction-count">0</h2>
+        </div>
+
+    </section>
+
+    <!-- Charts -->
+    <section class="charts">
+
+        <div class="chart-box">
+
+            <h3>Income vs Expense</h3>
+
+            <canvas id="incomeChart"></canvas>
+
+        </div>
+
+        <div class="chart-box">
+
+            <h3>Expense Categories</h3>
+
+            <canvas id="categoryChart"></canvas>
+
+        </div>
+
+    </section>
+
+    <!-- Form + Category Summary -->
+    <section class="bottom-grid">
+
+        <!-- Add Transaction -->
+        <div class="form-box">
+
+            <h3>Add Transaction</h3>
+
+            <form id="expense-form">
+
+                <input
+                    id="description"
+                    placeholder="Enter Description"
+                    required
+                >
+
+                <select
+                    id="transaction-type"
+                    required
+                >
+                    <option value="">Select Type</option>
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+
+                <input
+                    id="amount"
+                    type="number"
+                    step="0.01"
+                    placeholder="Enter Amount"
+                    required
+                >
+
+                <select
+                    id="category"
+                    required
+                >
+                    <option value="">Select Category</option>
+                    <option>Food</option>
+                    <option>Travel</option>
+                    <option>Shopping</option>
+                    <option>Bills</option>
+                    <option>Healthcare</option>
+                    <option>Utilities</option>
+                    <option>Other</option>
+                </select>
+
+                <input
+                    id="date"
+                    type="date"
+                    required
+                >
+
+                <button
+                    type="submit"
+                    id="save-button"
+                >
+                    Save Transaction
+                </button>
+
+            </form>
+
+        </div>
+
+        <!-- Category Summary -->
+        <div class="category-box">
+
+            <h3>Category Summary</h3>
+
+            <ul id="category-summary">
+                <li>No Categories Yet</li>
+            </ul>
+
+        </div>
+
+    </section>
+
+    <!-- Transaction History -->
+    <section class="history">
+
+        <h3>Recent Transactions</h3>
+
+        <div id="message"></div>
+
+        <ul id="expense-list">
+
+            <li class="expense-item">
+
+                <div class="expense-item-header">
+
+                    <h3>Sample Transaction</h3>
+
+                    <strong>₹0</strong>
+
+                </div>
+
+            </li>
+
+        </ul>
+
+    </section>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
 </html>
