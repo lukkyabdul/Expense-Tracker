@@ -1,4 +1,4 @@
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const email = document.getElementById('email').value.trim();
@@ -9,7 +9,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   messageEl.style.color = 'red';
 
   try {
-    const response = await fetch('/api/auth/login', {
+    const response = await fetch('/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -20,11 +20,16 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || 'Login failed.');
+      throw new Error(data.error || 'Registration failed.');
     }
 
-    localStorage.setItem('isLoggedIn', 'true'); // We will replace this with JWTs later
-    window.location.href = 'index.html';
+    messageEl.style.color = 'green';
+    messageEl.textContent = 'Registration successful! Redirecting to login...';
+
+    setTimeout(() => {
+      window.location.href = 'login.html';
+    }, 2000);
+
   } catch (error) {
     messageEl.textContent = error.message;
   }

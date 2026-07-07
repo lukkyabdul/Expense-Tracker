@@ -1,7 +1,16 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const { initDb, getExpenses, getExpense, createExpense, updateExpense, deleteExpense } = require('./db');
+const {
+  initDb,
+  getExpenses,
+  getExpense,
+  createExpense,
+  updateExpense,
+  deleteExpense,
+  findUserByEmail,
+  createUser: createDbUser,
+} = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -59,6 +68,47 @@ function validateExpense(expense) {
 
   return errors;
 }
+
+// --- AUTH ROUTES ---
+
+app.post('/api/auth/register', (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required.' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+  }
+
+  if (findUserByEmail(email)) {
+    return res.status(409).json({ error: 'An account with this email already exists.' });
+  }
+
+  // IMPORTANT: In a real-world application, you MUST hash the password before saving.
+  // Libraries like 'bcrypt' are essential for this.
+  const newUser = createDbUser({ email, password });
+
+  res.status(201).json({ message: 'User registered successfully.', user: { id: newUser.id, email: newUser.email } });
+});
+
+app.post('/api/auth/login', (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required.' });
+  }
+
+  const user = findUserByEmail(email);
+
+  // IMPORTANT: In a real-world application, you must use a secure password comparison
+  // function (e.g., bcrypt.compare) instead of plain text comparison.
+  if (!user || user.password !== password) {
+    return res.status(401).json({ error: 'Invalid email or password.' });
+  }
+
+  res.json({ message: 'Login successful.' });
+});
 
 app.get('/api/expenses', (req, res) => {
   const { category, type, from, to } = req.query;
@@ -184,11 +234,16 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: 'Internal server error' });
-});
-
 app.listen(PORT, () => {
   console.log(`Expense Tracker running on http://localhost:${PORT}`);
+});
+
+// --- Global Error Handler ---
+// IMPORTANT: This must be the last app.use() call
+app.use((err, req, res, next) => {
+  console.error(err);
+  if (res.headersSent) {
+    return next(err);
+  }
+  res.status(500).json({ error: 'Internal server error. Check server logs for details.' });
 });

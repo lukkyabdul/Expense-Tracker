@@ -3,11 +3,15 @@ const path = require('path');
 
 const dbDir = path.join(__dirname, 'data');
 const dbFile = path.join(dbDir, 'expenses.json');
+const usersDbFile = path.join(dbDir, 'users.json');
 
 function initDb() {
   fs.mkdirSync(dbDir, { recursive: true });
   if (!fs.existsSync(dbFile)) {
     fs.writeFileSync(dbFile, JSON.stringify({ expenses: [], nextId: 1 }, null, 2));
+  }
+  if (!fs.existsSync(usersDbFile)) {
+    fs.writeFileSync(usersDbFile, JSON.stringify({ users: [], nextId: 1 }, null, 2));
   }
 }
 
@@ -36,6 +40,16 @@ function readDb() {
 
 function writeDb(data) {
   fs.writeFileSync(dbFile, JSON.stringify(data, null, 2));
+}
+
+function readUsersDb() {
+  initDb();
+  const raw = fs.readFileSync(usersDbFile, 'utf8');
+  return JSON.parse(raw);
+}
+
+function writeUsersDb(data) {
+  fs.writeFileSync(usersDbFile, JSON.stringify(data, null, 2));
 }
 
 function getExpenses() {
@@ -74,6 +88,21 @@ function deleteExpense(id) {
   return true;
 }
 
+function findUserByEmail(email) {
+  const data = readUsersDb();
+  return data.users.find((user) => user.email.toLowerCase() === email.toLowerCase());
+}
+
+function createUser(user) {
+  const data = readUsersDb();
+  // In a real app, you MUST hash the password here.
+  const newUser = { id: data.nextId++, email: user.email, password: user.password };
+  data.users.push(newUser);
+  writeUsersDb(data);
+  // Return user without password
+  return { id: newUser.id, email: newUser.email };
+}
+
 module.exports = {
   initDb,
   getExpenses,
@@ -81,4 +110,6 @@ module.exports = {
   createExpense,
   updateExpense,
   deleteExpense,
+  findUserByEmail,
+  createUser,
 };

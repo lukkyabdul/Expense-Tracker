@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - Expense Tracker</title>
+    <link rel="stylesheet" href="login.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="left-panel">
+        <div class="logo">✦</div>
+        <h1>Expense Tracker</h1>
+        <p class="tagline">Create your account</p>
+        <p class="description">
+          Start managing your finances by creating a free account.
+        </p>
+      </div>
+
+      <div class="right-panel">
+        <div class="login-box">
+          <h2>Create Account</h2>
+          <p class="subtitle">Get started in seconds</p>
+
+          <form id="registerForm">
+            <div class="input-group">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="your.email@example.com" required />
+            </div>
+
+            <div class="input-group">
+              <label for="password">Password (min. 6 characters)</label>
+              <input id="password" name="password" type="password" placeholder="••••••" required />
+            </div>
+
+            <button type="submit" class="login-btn">Register</button>
+            <p class="form-link">Already have an account? <a href="login.html">Login here</a></p>
+          </form>
+          <div id="message" class="form-message"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="register.js"></script>
+  </body>
+</html>
